@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Denotational equality implies contextual equivalence | Programming Language Foundations in Agda
+</title><!-- Begin Jekyll SEO tag v2.5.0 -->
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Denotational equality implies contextual equivalence" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Programming Language Foundations in Agda" />
+<meta property="og:description" content="Programming Language Foundations in Agda" />
+<link rel="canonical" href="https://plfa.github.io/ContextualEquivalence/" />
+<meta property="og:url" content="https://plfa.github.io/ContextualEquivalence/" />
+<meta property="og:site_name" content="Programming Language Foundations in Agda" />
+<script type="application/ld+json">
+{"description":"Programming Language Foundations in Agda","@type":"WebPage","url":"https://plfa.github.io/ContextualEquivalence/","headline":"Denotational equality implies contextual equivalence","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"></head>
+<body><header class="site-header" role="banner">
+
+    <div class="wrapper">
+
+        <a class="site-title" href="/">Programming Language Foundations in Agda
+</a>
+
+        <nav class="site-nav">
+            <span class="menu-icon">
+                <svg viewBox="0 0 18 15" width="18px" height="15px">
+                    <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+                    <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+                    <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+                </svg>
+            </span>
+
+            <div class="trigger">
+                <a class="page-link" href="/">The Book</a>
+                <a class="page-link" href="/Announcements/">Announcements</a>
+                <a class="page-link" href="/GettingStarted/">Getting Started</a>
+                <a class="page-link" href="/Citing/">Citing</a>
+                <a class="page-link" href="https://agda-zh.github.io/PLFA-zh/">中文</a>
+            </div>
+        </nav>
+
+    </div>
+
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+      <h1 class="post-title">Denotational equality implies contextual equivalence</h1>
+  </header>
+
+  <p style="text-align:center;">
+    
+    <a alt="Previous chapter" href="/Adequacy/">Prev</a>
+    
+    
+    &bullet;
+    
+    
+    <a alt="Source code" href="https://github.com/plfa/plfa.github.io/blob/dev/src/plfa/ContextualEquivalence.lagda.md">Source</a>
+    
+    
+    &bullet;
+    
+    
+    <a alt="Next chapter" href="/Acknowledgements/">Next</a>
+    
+</p>
+
+
+  <div class="post-content">
+    <pre class="Agda"><a id="188" class="Keyword">module</a> <a id="195" href="/ContextualEquivalence/" class="Module">plfa.ContextualEquivalence</a> <a id="222" class="Keyword">where</a>
+</pre>
+<h2 id="imports">Imports</h2>
+
+<pre class="Agda"><a id="249" class="Keyword">open</a> <a id="254" class="Keyword">import</a> <a id="261" href="/Untyped/" class="Module">plfa.Untyped</a> <a id="274" class="Keyword">using</a> <a id="280" class="Symbol">(</a><a id="281" href="plfa.Untyped.html#4252" class="Datatype Operator">_⊢_</a><a id="284" class="Symbol">;</a> <a id="286" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a><a id="287" class="Symbol">;</a> <a id="289" href="plfa.Untyped.html#3152" class="InductiveConstructor">∅</a><a id="290" class="Symbol">;</a> <a id="292" href="plfa.Untyped.html#3168" class="InductiveConstructor Operator">_,_</a><a id="295" class="Symbol">;</a> <a id="297" href="plfa.Untyped.html#4340" class="InductiveConstructor Operator">ƛ_</a><a id="299" class="Symbol">;</a> <a id="301" href="plfa.Untyped.html#11203" class="Datatype Operator">_—↠_</a><a id="305" class="Symbol">)</a>
+<a id="307" class="Keyword">open</a> <a id="312" class="Keyword">import</a> <a id="319" href="/Denotational/" class="Module">plfa.Denotational</a> <a id="337" class="Keyword">using</a> <a id="343" class="Symbol">(</a><a id="344" href="plfa.Denotational.html#17211" class="Function">ℰ</a><a id="345" class="Symbol">;</a> <a id="347" href="plfa.Denotational.html#17393" class="Function Operator">_≃_</a><a id="350" class="Symbol">;</a> <a id="352" href="plfa.Denotational.html#17665" class="Function">≃-sym</a><a id="357" class="Symbol">;</a> <a id="359" href="plfa.Denotational.html#17798" class="Function">≃-trans</a><a id="366" class="Symbol">;</a> <a id="368" href="plfa.Denotational.html#16732" class="Function Operator">_iff_</a><a id="373" class="Symbol">)</a>
+<a id="375" class="Keyword">open</a> <a id="380" class="Keyword">import</a> <a id="387" href="/Compositional/" class="Module">plfa.Compositional</a> <a id="406" class="Keyword">using</a> <a id="412" class="Symbol">(</a><a id="413" href="plfa.Compositional.html#13621" class="Datatype">Ctx</a><a id="416" class="Symbol">;</a> <a id="418" href="plfa.Compositional.html#14673" class="Function">plug</a><a id="422" class="Symbol">;</a> <a id="424" href="plfa.Compositional.html#15068" class="Function">compositionality</a><a id="440" class="Symbol">)</a>
+<a id="442" class="Keyword">open</a> <a id="447" class="Keyword">import</a> <a id="454" href="/Soundness/" class="Module">plfa.Soundness</a> <a id="469" class="Keyword">using</a> <a id="475" class="Symbol">(</a><a id="476" href="plfa.Soundness.html#23387" class="Function">soundness</a><a id="485" class="Symbol">)</a>
+<a id="487" class="Keyword">open</a> <a id="492" class="Keyword">import</a> <a id="499" href="/Adequacy/" class="Module">plfa.Adequacy</a> <a id="513" class="Keyword">using</a> <a id="519" class="Symbol">(</a><a id="520" href="plfa.Adequacy.html#20829" class="Function">adequacy</a><a id="528" class="Symbol">)</a>
+<a id="530" class="Keyword">open</a> <a id="535" class="Keyword">import</a> <a id="542" href="/CallByName/" class="Module">plfa.CallByName</a> <a id="558" class="Keyword">using</a> <a id="564" class="Symbol">(</a><a id="565" href="plfa.CallByName.html#3058" class="Datatype Operator">_⊢_⇓_</a><a id="570" class="Symbol">;</a> <a id="572" href="plfa.CallByName.html#11113" class="Function">cbn→reduce</a><a id="582" class="Symbol">)</a>
+
+<a id="585" class="Keyword">open</a> <a id="590" class="Keyword">import</a> <a id="597" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html" class="Module">Data.Product</a> <a id="610" class="Keyword">using</a> <a id="616" class="Symbol">(</a><a id="617" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#1162" class="Function Operator">_×_</a><a id="620" class="Symbol">;</a> <a id="622" href="https://agda.github.io/agda-stdlib/v1.1/Agda.Builtin.Sigma.html#139" class="Record">Σ</a><a id="623" class="Symbol">;</a> <a id="625" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#911" class="Function">Σ-syntax</a><a id="633" class="Symbol">;</a> <a id="635" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#1364" class="Function">∃</a><a id="636" class="Symbol">;</a> <a id="638" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#1783" class="Function">∃-syntax</a><a id="646" class="Symbol">;</a> <a id="648" href="Agda.Builtin.Sigma.html#225" class="Field">proj₁</a><a id="653" class="Symbol">;</a> <a id="655" href="Agda.Builtin.Sigma.html#237" class="Field">proj₂</a><a id="660" class="Symbol">)</a>
+  <a id="664" class="Keyword">renaming</a> <a id="673" class="Symbol">(</a><a id="674" href="https://agda.github.io/agda-stdlib/v1.1/Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">_,_</a> <a id="678" class="Symbol">to</a> <a id="681" href="Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">⟨_,_⟩</a><a id="686" class="Symbol">)</a>
+</pre>
+<h2 id="contextual-equivalence">Contextual Equivalence</h2>
+
+<p>The notion of <em>contextual equivalence</em> is an important one for
+programming languages because it is the sufficient condition for
+changing a subterm of a program while maintaining the program’s
+overall behavior. Two terms <code class="highlighter-rouge">M</code> and <code class="highlighter-rouge">N</code> are contextually equivalent
+if they can plugged into any context <code class="highlighter-rouge">C</code> and produce equivalent
+results. As discuss in the Denotational chapter, the result of
+a program in the lambda calculus is to terminate or not.
+We characterize termination with the reduction semantics as follows.</p>
+
+<pre class="Agda"><a id="terminates"></a><a id="1238" href="/ContextualEquivalence/#1238" class="Function">terminates</a> <a id="1249" class="Symbol">:</a> <a id="1251" class="Symbol">∀{</a><a id="1253" href="plfa.ContextualEquivalence.html#1253" class="Bound">Γ</a><a id="1254" class="Symbol">}</a> <a id="1256" class="Symbol">→</a> <a id="1258" class="Symbol">(</a><a id="1259" href="plfa.ContextualEquivalence.html#1259" class="Bound">M</a> <a id="1261" class="Symbol">:</a> <a id="1263" href="plfa.ContextualEquivalence.html#1253" class="Bound">Γ</a> <a id="1265" href="/Untyped/#4252" class="Datatype Operator">⊢</a> <a id="1267" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a><a id="1268" class="Symbol">)</a> <a id="1270" class="Symbol">→</a> <a id="1272" class="PrimitiveType">Set</a>
+<a id="1276" href="/ContextualEquivalence/#1238" class="Function">terminates</a> <a id="1287" class="Symbol">{</a><a id="1288" href="plfa.ContextualEquivalence.html#1288" class="Bound">Γ</a><a id="1289" class="Symbol">}</a> <a id="1291" href="plfa.ContextualEquivalence.html#1291" class="Bound">M</a> <a id="1293" class="Symbol">=</a> <a id="1295" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#911" class="Function">Σ[</a> <a id="1298" href="plfa.ContextualEquivalence.html#1298" class="Bound">N</a> <a id="1300" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#911" class="Function">∈</a> <a id="1302" class="Symbol">(</a><a id="1303" href="plfa.ContextualEquivalence.html#1288" class="Bound">Γ</a> <a id="1305" href="/Untyped/#3168" class="InductiveConstructor Operator">,</a> <a id="1307" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a> <a id="1309" href="plfa.Untyped.html#4252" class="Datatype Operator">⊢</a> <a id="1311" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a><a id="1312" class="Symbol">)</a> <a id="1314" href="https://agda.github.io/agda-stdlib/v1.1/Data.Product.html#911" class="Function">]</a> <a id="1316" class="Symbol">(</a><a id="1317" href="plfa.ContextualEquivalence.html#1291" class="Bound">M</a> <a id="1319" href="plfa.Untyped.html#11203" class="Datatype Operator">—↠</a> <a id="1322" href="plfa.Untyped.html#4340" class="InductiveConstructor Operator">ƛ</a> <a id="1324" href="plfa.ContextualEquivalence.html#1298" class="Bound">N</a><a id="1325" class="Symbol">)</a>
+</pre>
+<p>So two terms are contextually equivalent if plugging them into the
+same context produces two programs that either terminate or diverge
+together.</p>
+
+<pre class="Agda"><a id="_≅_"></a><a id="1482" href="/ContextualEquivalence/#1482" class="Function Operator">_≅_</a> <a id="1486" class="Symbol">:</a> <a id="1488" class="Symbol">∀{</a><a id="1490" href="plfa.ContextualEquivalence.html#1490" class="Bound">Γ</a><a id="1491" class="Symbol">}</a> <a id="1493" class="Symbol">→</a> <a id="1495" class="Symbol">(</a><a id="1496" href="plfa.ContextualEquivalence.html#1496" class="Bound">M</a> <a id="1498" href="plfa.ContextualEquivalence.html#1498" class="Bound">N</a> <a id="1500" class="Symbol">:</a> <a id="1502" href="plfa.ContextualEquivalence.html#1490" class="Bound">Γ</a> <a id="1504" href="/Untyped/#4252" class="Datatype Operator">⊢</a> <a id="1506" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a><a id="1507" class="Symbol">)</a> <a id="1509" class="Symbol">→</a> <a id="1511" class="PrimitiveType">Set</a>
+<a id="1515" class="Symbol">(</a><a id="1516" href="/ContextualEquivalence/#1482" class="Function Operator">_≅_</a> <a id="1520" class="Symbol">{</a><a id="1521" href="plfa.ContextualEquivalence.html#1521" class="Bound">Γ</a><a id="1522" class="Symbol">}</a> <a id="1524" href="plfa.ContextualEquivalence.html#1524" class="Bound">M</a> <a id="1526" href="plfa.ContextualEquivalence.html#1526" class="Bound">N</a><a id="1527" class="Symbol">)</a> <a id="1529" class="Symbol">=</a> <a id="1531" class="Symbol">∀</a> <a id="1533" class="Symbol">{</a><a id="1534" href="plfa.ContextualEquivalence.html#1534" class="Bound">C</a> <a id="1536" class="Symbol">:</a> <a id="1538" href="/Compositional/#13621" class="Datatype">Ctx</a> <a id="1542" href="plfa.ContextualEquivalence.html#1521" class="Bound">Γ</a> <a id="1544" href="/Untyped/#3152" class="InductiveConstructor">∅</a><a id="1545" class="Symbol">}</a>
+                <a id="1563" class="Symbol">→</a> <a id="1565" class="Symbol">(</a><a id="1566" href="/ContextualEquivalence/#1238" class="Function">terminates</a> <a id="1577" class="Symbol">(</a><a id="1578" href="/Compositional/#14673" class="Function">plug</a> <a id="1583" href="plfa.ContextualEquivalence.html#1534" class="Bound">C</a> <a id="1585" href="plfa.ContextualEquivalence.html#1524" class="Bound">M</a><a id="1586" class="Symbol">))</a> <a id="1589" href="/Denotational/#16732" class="Function Operator">iff</a> <a id="1593" class="Symbol">(</a><a id="1594" href="plfa.ContextualEquivalence.html#1238" class="Function">terminates</a> <a id="1605" class="Symbol">(</a><a id="1606" href="plfa.Compositional.html#14673" class="Function">plug</a> <a id="1611" href="plfa.ContextualEquivalence.html#1534" class="Bound">C</a> <a id="1613" href="plfa.ContextualEquivalence.html#1526" class="Bound">N</a><a id="1614" class="Symbol">))</a>
+</pre>
+<p>The contextual equivalence of two terms is difficult to prove directly
+based on the above definition because of the universal quantification
+of the context <code class="highlighter-rouge">C</code>. One of the main motivations for developing
+denotational semantics is to have an alternative way to prove
+contextual equivalence that instead only requires reasoning about the
+two terms.</p>
+
+<h2 id="denotational-equivalence-implies-contextual-equivalence">Denotational equivalence implies contextual equivalence</h2>
+
+<p>Thankfully, the proof that denotational equality implies contextual
+equivalence is an easy corollary of the results that we have already
+established. Furthermore, the two directions of the if-and-only-if are
+symmetric, so we can prove one lemma and then use it twice in the
+theorem.</p>
+
+<p>The lemma states that if <code class="highlighter-rouge">M</code> and <code class="highlighter-rouge">N</code> are denotationally equal
+and if <code class="highlighter-rouge">M</code> plugged into <code class="highlighter-rouge">C</code> terminates, then so does
+<code class="highlighter-rouge">N</code> plugged into <code class="highlighter-rouge">C</code>.</p>
+
+<pre class="Agda"><a id="denot-equal-terminates"></a><a id="2457" href="/ContextualEquivalence/#2457" class="Function">denot-equal-terminates</a> <a id="2480" class="Symbol">:</a> <a id="2482" class="Symbol">∀{</a><a id="2484" href="plfa.ContextualEquivalence.html#2484" class="Bound">Γ</a><a id="2485" class="Symbol">}</a> <a id="2487" class="Symbol">{</a><a id="2488" href="plfa.ContextualEquivalence.html#2488" class="Bound">M</a> <a id="2490" href="plfa.ContextualEquivalence.html#2490" class="Bound">N</a> <a id="2492" class="Symbol">:</a> <a id="2494" href="plfa.ContextualEquivalence.html#2484" class="Bound">Γ</a> <a id="2496" href="/Untyped/#4252" class="Datatype Operator">⊢</a> <a id="2498" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a><a id="2499" class="Symbol">}</a> <a id="2501" class="Symbol">{</a><a id="2502" href="plfa.ContextualEquivalence.html#2502" class="Bound">C</a> <a id="2504" class="Symbol">:</a> <a id="2506" href="/Compositional/#13621" class="Datatype">Ctx</a> <a id="2510" href="plfa.ContextualEquivalence.html#2484" class="Bound">Γ</a> <a id="2512" href="plfa.Untyped.html#3152" class="InductiveConstructor">∅</a><a id="2513" class="Symbol">}</a>
+  <a id="2517" class="Symbol">→</a> <a id="2519" href="/Denotational/#17211" class="Function">ℰ</a> <a id="2521" href="/ContextualEquivalence/#2488" class="Bound">M</a> <a id="2523" href="plfa.Denotational.html#17393" class="Function Operator">≃</a> <a id="2525" href="plfa.Denotational.html#17211" class="Function">ℰ</a> <a id="2527" href="plfa.ContextualEquivalence.html#2490" class="Bound">N</a>  <a id="2530" class="Symbol">→</a>  <a id="2533" href="plfa.ContextualEquivalence.html#1238" class="Function">terminates</a> <a id="2544" class="Symbol">(</a><a id="2545" href="/Compositional/#14673" class="Function">plug</a> <a id="2550" href="plfa.ContextualEquivalence.html#2502" class="Bound">C</a> <a id="2552" href="plfa.ContextualEquivalence.html#2488" class="Bound">M</a><a id="2553" class="Symbol">)</a>
+    <a id="2559" class="Comment">-----------------------------------</a>
+  <a id="2597" class="Symbol">→</a> <a id="2599" href="/ContextualEquivalence/#1238" class="Function">terminates</a> <a id="2610" class="Symbol">(</a><a id="2611" href="/Compositional/#14673" class="Function">plug</a> <a id="2616" href="plfa.ContextualEquivalence.html#2502" class="Bound">C</a> <a id="2618" href="plfa.ContextualEquivalence.html#2490" class="Bound">N</a><a id="2619" class="Symbol">)</a>
+<a id="2621" href="/ContextualEquivalence/#2457" class="Function">denot-equal-terminates</a> <a id="2644" class="Symbol">{</a><a id="2645" href="plfa.ContextualEquivalence.html#2645" class="Bound">Γ</a><a id="2646" class="Symbol">}{</a><a id="2648" href="plfa.ContextualEquivalence.html#2648" class="Bound">M</a><a id="2649" class="Symbol">}{</a><a id="2651" href="plfa.ContextualEquivalence.html#2651" class="Bound">N</a><a id="2652" class="Symbol">}{</a><a id="2654" href="plfa.ContextualEquivalence.html#2654" class="Bound">C</a><a id="2655" class="Symbol">}</a> <a id="2657" href="plfa.ContextualEquivalence.html#2657" class="Bound">ℰM≃ℰN</a> <a id="2663" href="https://agda.github.io/agda-stdlib/v1.1/Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">⟨</a> <a id="2665" href="plfa.ContextualEquivalence.html#2665" class="Bound">N′</a> <a id="2668" href="Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">,</a> <a id="2670" href="plfa.ContextualEquivalence.html#2670" class="Bound">CM—↠ƛN′</a> <a id="2678" href="Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">⟩</a> <a id="2680" class="Symbol">=</a>
+  <a id="2684" class="Keyword">let</a> <a id="2688" href="/ContextualEquivalence/#2688" class="Bound">ℰCM≃ℰƛN′</a> <a id="2697" class="Symbol">=</a> <a id="2699" href="/Soundness/#23387" class="Function">soundness</a> <a id="2709" href="plfa.ContextualEquivalence.html#2670" class="Bound">CM—↠ƛN′</a> <a id="2717" class="Keyword">in</a>
+  <a id="2722" class="Keyword">let</a> <a id="2726" href="/ContextualEquivalence/#2726" class="Bound">ℰCM≃ℰCN</a> <a id="2734" class="Symbol">=</a> <a id="2736" href="/Compositional/#15068" class="Function">compositionality</a><a id="2752" class="Symbol">{</a><a id="2753" class="Argument">Γ</a> <a id="2755" class="Symbol">=</a> <a id="2757" href="plfa.ContextualEquivalence.html#2645" class="Bound">Γ</a><a id="2758" class="Symbol">}{</a><a id="2760" class="Argument">Δ</a> <a id="2762" class="Symbol">=</a> <a id="2764" href="/Untyped/#3152" class="InductiveConstructor">∅</a><a id="2765" class="Symbol">}{</a><a id="2767" class="Argument">C</a> <a id="2769" class="Symbol">=</a> <a id="2771" href="plfa.ContextualEquivalence.html#2654" class="Bound">C</a><a id="2772" class="Symbol">}</a> <a id="2774" href="plfa.ContextualEquivalence.html#2657" class="Bound">ℰM≃ℰN</a> <a id="2780" class="Keyword">in</a>
+  <a id="2785" class="Keyword">let</a> <a id="2789" href="/ContextualEquivalence/#2789" class="Bound">ℰCN≃ℰƛN′</a> <a id="2798" class="Symbol">=</a> <a id="2800" href="/Denotational/#17798" class="Function">≃-trans</a> <a id="2808" class="Symbol">(</a><a id="2809" href="plfa.Denotational.html#17665" class="Function">≃-sym</a> <a id="2815" href="plfa.ContextualEquivalence.html#2726" class="Bound">ℰCM≃ℰCN</a><a id="2822" class="Symbol">)</a> <a id="2824" href="plfa.ContextualEquivalence.html#2688" class="Bound">ℰCM≃ℰƛN′</a> <a id="2833" class="Keyword">in</a>
+    <a id="2840" href="/CallByName/#11113" class="Function">cbn→reduce</a> <a id="2851" class="Symbol">(</a><a id="2852" href="https://agda.github.io/agda-stdlib/v1.1/Agda.Builtin.Sigma.html#237" class="Field">proj₂</a> <a id="2858" class="Symbol">(</a><a id="2859" href="Agda.Builtin.Sigma.html#237" class="Field">proj₂</a> <a id="2865" class="Symbol">(</a><a id="2866" href="Agda.Builtin.Sigma.html#237" class="Field">proj₂</a> <a id="2872" class="Symbol">(</a><a id="2873" href="/Adequacy/#20829" class="Function">adequacy</a> <a id="2882" href="/ContextualEquivalence/#2789" class="Bound">ℰCN≃ℰƛN′</a><a id="2890" class="Symbol">))))</a>
+</pre>
+<p>The proof is direct. Because <code class="highlighter-rouge">plug C —↠ plug C (ƛN′)</code>,
+we can apply soundness to obtain</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ℰ (plug C M) ≃ ℰ (ƛN′)
+</code></pre></div></div>
+
+<p>From <code class="highlighter-rouge">ℰ M ≃ ℰ N</code>, compositionality gives us</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ℰ (plug C M) ≃ ℰ (plug C N).
+</code></pre></div></div>
+
+<p>Putting these two facts together gives us</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ℰ (plug C N) ≃ ℰ (ƛN′).
+</code></pre></div></div>
+
+<p>We then apply adequacy to deduce</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>∅' ⊢ plug C N ⇓ clos (ƛ N′′) δ).
+</code></pre></div></div>
+
+<p>Call-by-name evaluation implies reduction to a lambda abstraction,
+so we conclude that</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>terminates (plug C N).
+</code></pre></div></div>
+
+<p>The main theorem follows by two applications of the lemma.</p>
+
+<pre class="Agda"><a id="denot-equal-contex-equal"></a><a id="3421" href="/ContextualEquivalence/#3421" class="Function">denot-equal-contex-equal</a> <a id="3446" class="Symbol">:</a> <a id="3448" class="Symbol">∀{</a><a id="3450" href="plfa.ContextualEquivalence.html#3450" class="Bound">Γ</a><a id="3451" class="Symbol">}</a> <a id="3453" class="Symbol">{</a><a id="3454" href="plfa.ContextualEquivalence.html#3454" class="Bound">M</a> <a id="3456" href="plfa.ContextualEquivalence.html#3456" class="Bound">N</a> <a id="3458" class="Symbol">:</a> <a id="3460" href="plfa.ContextualEquivalence.html#3450" class="Bound">Γ</a> <a id="3462" href="/Untyped/#4252" class="Datatype Operator">⊢</a> <a id="3464" href="plfa.Untyped.html#2876" class="InductiveConstructor">★</a><a id="3465" class="Symbol">}</a>
+  <a id="3469" class="Symbol">→</a> <a id="3471" href="/Denotational/#17211" class="Function">ℰ</a> <a id="3473" href="/ContextualEquivalence/#3454" class="Bound">M</a> <a id="3475" href="plfa.Denotational.html#17393" class="Function Operator">≃</a> <a id="3477" href="plfa.Denotational.html#17211" class="Function">ℰ</a> <a id="3479" href="plfa.ContextualEquivalence.html#3456" class="Bound">N</a>
+    <a id="3485" class="Comment">---------</a>
+  <a id="3497" class="Symbol">→</a> <a id="3499" href="/ContextualEquivalence/#3454" class="Bound">M</a> <a id="3501" href="plfa.ContextualEquivalence.html#1482" class="Function Operator">≅</a> <a id="3503" href="plfa.ContextualEquivalence.html#3456" class="Bound">N</a>
+<a id="3505" href="/ContextualEquivalence/#3421" class="Function">denot-equal-contex-equal</a><a id="3529" class="Symbol">{</a><a id="3530" href="plfa.ContextualEquivalence.html#3530" class="Bound">Γ</a><a id="3531" class="Symbol">}{</a><a id="3533" href="plfa.ContextualEquivalence.html#3533" class="Bound">M</a><a id="3534" class="Symbol">}{</a><a id="3536" href="plfa.ContextualEquivalence.html#3536" class="Bound">N</a><a id="3537" class="Symbol">}</a> <a id="3539" href="plfa.ContextualEquivalence.html#3539" class="Bound">eq</a> <a id="3542" class="Symbol">{</a><a id="3543" href="plfa.ContextualEquivalence.html#3543" class="Bound">C</a><a id="3544" class="Symbol">}</a> <a id="3546" class="Symbol">=</a>
+   <a id="3551" href="https://agda.github.io/agda-stdlib/v1.1/Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">⟨</a> <a id="3553" class="Symbol">(λ</a> <a id="3556" href="/ContextualEquivalence/#3556" class="Bound">tm</a> <a id="3559" class="Symbol">→</a> <a id="3561" href="plfa.ContextualEquivalence.html#2457" class="Function">denot-equal-terminates</a> <a id="3584" href="plfa.ContextualEquivalence.html#3539" class="Bound">eq</a> <a id="3587" href="plfa.ContextualEquivalence.html#3556" class="Bound">tm</a><a id="3589" class="Symbol">)</a> <a id="3591" href="Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">,</a>
+     <a id="3598" class="Symbol">(λ</a> <a id="3601" href="/ContextualEquivalence/#3601" class="Bound">tn</a> <a id="3604" class="Symbol">→</a> <a id="3606" href="plfa.ContextualEquivalence.html#2457" class="Function">denot-equal-terminates</a> <a id="3629" class="Symbol">(</a><a id="3630" href="/Denotational/#17665" class="Function">≃-sym</a> <a id="3636" href="plfa.ContextualEquivalence.html#3539" class="Bound">eq</a><a id="3638" class="Symbol">)</a> <a id="3640" href="plfa.ContextualEquivalence.html#3601" class="Bound">tn</a><a id="3642" class="Symbol">)</a> <a id="3644" href="https://agda.github.io/agda-stdlib/v1.1/Agda.Builtin.Sigma.html#209" class="InductiveConstructor Operator">⟩</a>
+</pre>
+
+<h2 id="unicode">Unicode</h2>
+
+<p>This chapter uses the following unicode:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>≅  U+2245  APPROXIMATELY EQUAL TO (\~= or \cong)
+</code></pre></div></div>
+
+  </div>
+
+  <p style="text-align:center;">
+    
+    <a alt="Previous chapter" href="/Adequacy/">Prev</a>
+    
+    
+    &bullet;
+    
+    
+    <a alt="Source code" href="https://github.com/plfa/plfa.github.io/blob/dev/src/plfa/ContextualEquivalence.lagda.md">Source</a>
+    
+    
+    &bullet;
+    
+    
+    <a alt="Next chapter" href="/Acknowledgements/">Next</a>
+    
+</p>
+
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">Programming Language Foundations in Agda
+</h2><div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Philip Wadler</li>
+          <li><a class="u-email" href="mailto:wadler@inf.ed.ac.uk">wadler@inf.ed.ac.uk</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/wadler"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">wadler</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3"></div>
+    </div><div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Wen Kokke</li>
+          <li><a class="u-email" href="mailto:wen.kokke@ed.ac.uk">wen.kokke@ed.ac.uk</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/wenkokke"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">wenkokke</span></a></li><li><a href="https://www.twitter.com/wenkokke"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">wenkokke</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3"></div>
+    </div>This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+  </div>
+</footer>
+<!-- Import jQuery -->
+<script type="text/javascript" src="/assets/jquery.js"></script>
+
+<script type="text/javascript">
+
+ // Makes sandwhich menu works
+ $('.menu-icon').click(function(){
+   $('.trigger').toggle();
+ });
+
+ // Script which allows for foldable code blocks
+ $('div.foldable pre').each(function(){
+     var autoHeight = $(this).height();
+     var lineHeight = parseFloat($(this).css('line-height'));
+
+     var plus    = $("<div></div>");
+     var horLine = $("<div></div>");
+     var verLine = $("<div></div>");
+     $(this).prepend(plus);
+     plus.css({
+         'position'         : 'relative',
+         'float'            : 'right',
+         'right'            : '-' + (0.5 * lineHeight - 1.5) + 'px',
+         'width'            : lineHeight,
+         'height'           : lineHeight});
+     verLine.css({
+         'position'         : 'relative',
+         'height'           : lineHeight,
+         'width'            : '3px',
+         'background-color' : '#C1E0FF'});
+     horLine.css({
+         'position'         : 'relative',
+         'top'              : '-' + (0.5 * lineHeight + 1.5) + 'px',
+         'left'             : '-' + (0.5 * lineHeight - 1.5) + 'px',
+         'height'           : '3px',
+         'width'            : lineHeight,
+         'background-color' : '#C1E0FF'});
+     plus.append(verLine);
+     plus.append(horLine);
+
+     $(this).height(2.0 * lineHeight);
+     $(this).css('overflow','hidden');
+
+     $(this).click(function(){
+         if ($(this).height() == autoHeight) {
+             $(this).height(2.0 * lineHeight);
+             plus.show();
+         }
+         else {
+             $(this).height('auto');
+             plus.hide();
+         }
+     });
+ });
+</script>
+
+<!-- Import KaTeX -->
+<script type="text/javascript" src="/assets/katex.js"></script>
+
+<!-- Script which renders TeX using KaTeX -->
+<script type="text/javascript">
+ $("script[type='math/tex']").replaceWith(
+     function(){
+         var tex = $(this).text();
+         return "<span class=\"inline-equation\">" +
+                katex.renderToString(tex) +
+                "</span>";
+     });
+ $("script[type='math/tex; mode=display']").replaceWith(
+     function(){
+         var tex = $(this).text().replace(/%.*?(\n|$)/g,"");
+         return "<div class=\"equation\">" +
+                katex.renderToString("\\displaystyle "+tex) +
+                "</div>";
+     });
+</script>
+</body>
+
+</html>
